@@ -62,7 +62,20 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	}
 
 	w.WriteHeader(200)
-	w.Write([]byte("["))
+	w.Write([]byte("{\"columns\":"))
+
+	fields := res.FieldDescriptions()
+
+	cols := make([]string, len(fields))
+
+	for idx, f := range fields {
+		cols[idx] = f.Name
+	}
+
+	marshalled, _ := json.Marshal(cols)
+	w.Write(marshalled)
+
+	w.Write([]byte(",\"values\":["))
 
 	firstRow := true
 
@@ -72,67 +85,70 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 		} else {
 			w.Write([]byte(","))
 		}
-		values, _ := pgx.RowToMap(res)
+		values, _ := res.Values()
 		marshalled, _ := json.Marshal(values)
 		w.Write(marshalled)
 	}
-	w.Write([]byte("]"))
+	w.Write([]byte("]}"))
+}
+
+func queryHandler(w http.ResponseWriter, r *http.Request) {
+	if !(r.Method == http.MethodPost || r.Method == http.MethodOptions) {
+		w.WriteHeader(405)
+		fmt.Fprint(w, "Method not allowed")
+		return
+	}
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Headers", "*")
+	w.Header().Add("Content-Type", "application/json")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(200)
+		w.Write([]byte(`{"preflight": "ok"}`)) // send the preflight on its way before we hit logic
+		return
+	}
+
+	var params []any
+	var query string
+
+	reqBuf := new(strings.Builder)
+
+	_, err := io.Copy(reqBuf, r.Body)
+
+	if err != nil {
+		slog.Error("get query", "error", err)
+
+		w.WriteHeader(500)
+		w.Write([]byte(`{"error":"Internal server error"}`))
+		return
+	}
+
+	if r.Header.Get("Content-Type") == "application/json" {
+		var jsonBody struct {
+			Query  string `json:"query"`
+			Params []any  `json:"params"`
+		}
+
+		err = json.Unmarshal([]byte(reqBuf.String()), &jsonBody)
+
+		if err != nil {
+			slog.Error("parse json", "error", err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte(`{"error":"Parse error"}`))
+			return
+		}
+		params = jsonBody.Params
+		query = jsonBody.Query
+	} else {
+		params = []any{}
+		query = reqBuf.String()
+	}
+
+	queryEndpointArgs(w, r, query, params)
 }
 
 func Mount() {
-	http.HandleFunc("/api/query", func(w http.ResponseWriter, r *http.Request) {
-		if !(r.Method == http.MethodPost || r.Method == http.MethodOptions) {
-			w.WriteHeader(405)
-			fmt.Fprint(w, "Method not allowed")
-			return
-		}
-
-		w.Header().Add("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Headers", "*")
-		w.Header().Add("Content-Type", "application/json")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(200)
-			w.Write([]byte(`{"preflight": "ok"}`)) // send the preflight on its way before we hit logic
-			return
-		}
-
-		var params []any
-		var query string
-
-		reqBuf := new(strings.Builder)
-
-		_, err := io.Copy(reqBuf, r.Body)
-
-		if err != nil {
-			slog.Error("get query", "error", err)
-
-			w.WriteHeader(500)
-			w.Write([]byte(`{"error":"Internal server error"}`))
-			return
-		}
-
-		if r.Header.Get("Content-Type") == "application/json" {
-			var jsonBody struct {
-				Query  string `json:"query"`
-				Params []any  `json:"params"`
-			}
-
-			err = json.Unmarshal([]byte(reqBuf.String()), &jsonBody)
-
-			if err != nil {
-				slog.Error("parse json", "error", err)
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte(`{"error":"Parse error"}`))
-				return
-			}
-			params = jsonBody.Params
-			query = jsonBody.Query
-		} else {
-			params = []any{}
-			query = reqBuf.String()
-		}
-
-		queryEndpointArgs(w, r, query, params)
-	})
+	http.HandleFunc("/api/query", queryHandler)
+	http.HandleFunc("/v1/query", queryHandler)
 }

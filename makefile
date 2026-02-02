@@ -22,4 +22,4 @@ dev:
 	make -j3 tailwind templ server
 
 migrate:
-    ./goose postgres \"$DATABASE_URL\" up -dir migrations/
+	./goose postgres \"$DATABASE_URL\" up -dir migrations/
