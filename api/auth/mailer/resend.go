@@ -37,7 +37,7 @@ func SendConfirmation(conn *pgxpool.Pool, email string) (*Confirmation, error) {
 	sent, err := client.Emails.Send(&resend.SendEmailRequest{
 		From:    "Pacuare Reserve <support@farthergate.com>",
 		To:      []string{email},
-		Text:    fmt.Sprintf("Please use the code %s to log in to Pacuare.", code),
+		Text:    fmt.Sprintf("Please use the code %s to log in to Pacuare.\nPor favor usar la clave %s para iniciar en Pacuare Reserve.", code, code),
 		Subject: "Login Confirmation",
 	})
 
