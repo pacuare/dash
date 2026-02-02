@@ -27,8 +27,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/axzilla/templui v0.70.0 // indirect
-	github.com/bep/godartsass v1.2.0 // indirect
-	github.com/bep/godartsass/v2 v2.1.0 // indirect
+	github.com/bep/godartsass/v2 v2.3.2 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cli/browser v1.3.0 // indirect
@@ -38,13 +37,13 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-sysinfo v1.15.3 // indirect
 	github.com/elastic/go-windows v1.0.2 // indirect
-	github.com/fatih/color v1.17.0 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/gohugoio/hugo v0.134.3 // indirect
+	github.com/gohugoio/hugo v0.139.4 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
