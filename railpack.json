@@ -20,6 +20,6 @@
     }
   },
   "deploy": {
-    "startCommand": "./goose postgres \"$DATABASE_URL\" up -dir migrations && ./out"
+    "startCommand": "./out"
   }
 }
