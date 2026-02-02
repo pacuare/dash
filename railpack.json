@@ -19,7 +19,6 @@
     }
   },
   "deploy": {
-    "variables": { "LOG_FORMAT_JSON": "1" },
-    "startCommand": "./out"
+    "variables": { "LOG_FORMAT_JSON": "1" }
   }
 }
