@@ -1,0 +1,49 @@
+package results
+
+import "app.pacuare.dev/components/table"
+import "app.pacuare.dev/components/card"
+import "app.pacuare.dev/components/alert"
+import "app.pacuare.dev/components/icon"
+import "app.pacuare.dev/components/button"
+
+templ ResultsView() {
+	@card.Card(card.Props{Class: "flex flex-col items-stretch translate-0 box-border"}) {
+		<template x-if="'error' in $store.results.currentResults">
+			@alert.Alert(alert.Props{Class: "m-2 w-[calc(100%-(var(--spacing)*4))]", Attributes: templ.Attributes{"x-text": "$store.results.currentResults.error"}, Variant: alert.VariantDestructive})
+		</template>
+		<template x-if="!('error' in $store.results.currentResults)">
+			@table.Table(table.Props{Class: "h-full max-h-full max-w-full caption-top"}) {
+				@table.Caption(table.CaptionProps{Class: "block fixed bottom-4 left-[50%] -translate-x-1/2 p-2 rounded", Attributes: templ.Attributes{"style": "backdrop-filter: blur(10px)"}}) {
+					<span x-text="$store.results.currentResults.values.length"/> rows in result
+				}
+
+				@table.Header() {
+					@table.Row() {
+						<template x-for="key of $store.results.currentResults.columns">
+							@table.Head(table.HeadProps{Attributes: templ.Attributes{"x-text": "key"}})
+						</template>
+					}
+				}
+
+				@table.Body() {
+					<template x-for="row of $store.results.currentResults.values">
+						@table.Row() {
+							<template x-for="value of row">
+								@table.Cell(table.CellProps{Attributes: templ.Attributes{"x-text": "value"}})
+							</template>
+						}
+					</template>
+				}
+			}
+		</template>
+		<template x-if="!('error' in $store.results.currentResults) && $store.results.currentResults.values.length > 0">
+			@button.Button(button.Props{
+				Size: button.SizeIcon,
+				Class: "fixed bottom-3 right-3",
+				Attributes: templ.Attributes{"title": "Download results as CSV", "x-bind": "exportCSV"},
+			}) {
+				@icon.FileDown(icon.Props{Size: 16})
+			}
+		</template>
+	}
+}

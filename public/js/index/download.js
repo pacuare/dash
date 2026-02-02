@@ -1,16 +1,16 @@
-import { jsonToTsv } from "./csv.js";
+import { resultsToTsv } from "./csv.js";
 
 export function downloadResults(results) {
-    const csvBlob = new Blob([jsonToTsv(results)], { type: 'text/tsv' })
+  const csvBlob = new Blob([resultsToTsv(results)], { type: "text/tsv" });
 
-    const url = URL.createObjectURL(csvBlob)
+  const url = URL.createObjectURL(csvBlob);
 
-    const link = document.createElement('a')
-    link.classList.add('hidden')
-    link.href = url
-    link.download = 'query.csv'
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    URL.revokeObjectURL(url)
+  const link = document.createElement("a");
+  link.classList.add("hidden");
+  link.href = url;
+  link.download = "query.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
