@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 
 	"app.pacuare.dev/shared"
-	"github.com/charmbracelet/log"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -26,7 +26,7 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	var conn *pgx.Conn
 	var dbName string
 	if fullAccess, err := shared.QueryOne[bool]("select fullAccess from AuthorizedUsers where email=$1", email); err != nil {
-		log.Errorf("Error querying access level: %e", err)
+		slog.Error("querying access level", "error", err)
 
 		w.WriteHeader(500)
 		w.Write([]byte(`{"error":"Internal server error"}`))
@@ -42,7 +42,7 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	conn, err = pgx.Connect(r.Context(), dbUrl)
 
 	if err != nil {
-		log.Errorf("Error opening database: %e", err)
+		slog.Error("open database", "error", err)
 
 		w.WriteHeader(500)
 		w.Write([]byte(`{"error":"Internal server error"}`))
@@ -53,7 +53,7 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 
 	res, err := conn.Query(r.Context(), query, params...)
 	if err != nil {
-		log.Errorf("Error running query: %e", err)
+		slog.Error("run query", "query", query, "error", err)
 
 		w.WriteHeader(500)
 		jsonError, _ := json.Marshal(map[string]string{"error": err.Error()})
@@ -105,7 +105,7 @@ func Mount() {
 		_, err := io.Copy(reqBuf, r.Body)
 
 		if err != nil {
-			log.Errorf("Error getting query: %e", err)
+			slog.Error("get query", "error", err)
 
 			w.WriteHeader(500)
 			w.Write([]byte(`{"error":"Internal server error"}`))
@@ -121,7 +121,7 @@ func Mount() {
 			err = json.Unmarshal([]byte(reqBuf.String()), &jsonBody)
 
 			if err != nil {
-				log.Error(err)
+				slog.Error("parse json", "error", err)
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				w.Write([]byte(`{"error":"Parse error"}`))
 				return

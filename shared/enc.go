@@ -6,9 +6,8 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
+	"log"
 	"os"
-
-	"github.com/charmbracelet/log"
 )
 
 var (

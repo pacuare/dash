@@ -3,6 +3,7 @@ package auth
 import (
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"app.pacuare.dev/api/auth/mailer"
 	"app.pacuare.dev/shared"
 	"app.pacuare.dev/templates"
-	"github.com/charmbracelet/log"
 )
 
 func Mount() {
@@ -32,7 +32,7 @@ func Mount() {
 		hasUser, err := shared.QueryOne[bool]("select (count(*) > 0) from AuthorizedUsers where email=$1", email)
 
 		if err != nil {
-			log.Error(err)
+			slog.Error("verify", "error", err)
 		}
 
 		if !hasUser {
@@ -41,7 +41,7 @@ func Mount() {
 			_, err := mailer.SendConfirmation(conn, email)
 
 			if err != nil {
-				log.Errorf("Error creating verification code for %s", email)
+				slog.Error("create verification code", "email", email)
 				http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s", email), http.StatusSeeOther)
 				return
 			}
@@ -55,19 +55,19 @@ func Mount() {
 
 		err := r.ParseForm()
 		if err != nil {
-			log.Error(err)
+			slog.Error("parse form", "form", "verify", "error", err)
 			http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s&login-failed", email), http.StatusSeeOther)
 			return
 		}
 
 		inputCode := r.Form.Get("otp")
 
-		log.Infof("%s %s", email, inputCode)
+		slog.Info("otp input", "email", email, "code", inputCode)
 
 		code, err := shared.QueryOne[string]("select code from LoginCodes where email=$1", email)
 
 		if err != nil {
-			log.Error(err)
+			slog.Error("get code", "error", err)
 			http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s&login-failed", email), http.StatusSeeOther)
 			return
 		}
@@ -75,7 +75,7 @@ func Mount() {
 		if strings.EqualFold(code, inputCode) {
 			enc, err := shared.Encrypt([]byte(email))
 			if err != nil {
-				log.Error(err)
+				slog.Error("encrypt", "error", err)
 				http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s&login-failed", email), http.StatusSeeOther)
 				return
 			}
