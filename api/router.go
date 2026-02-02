@@ -93,7 +93,6 @@ func Mount() {
 		description := r.FormValue("description")
 
 		if err != nil {
-			slog.Error("get user", "error", err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}
@@ -121,7 +120,6 @@ func Mount() {
 		id := r.FormValue("id")
 
 		if err != nil {
-			slog.Error("get user", "error", err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}

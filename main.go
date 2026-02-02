@@ -39,7 +39,6 @@ func main() {
 		email, err := shared.GetUser(r)
 
 		if err != nil {
-			slog.Error("get user", "error", err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}
@@ -70,7 +69,6 @@ func main() {
 		email, err := shared.GetUser(r)
 
 		if err != nil {
-			slog.Error("get user", "error", err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}
