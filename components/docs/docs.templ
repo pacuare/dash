@@ -12,12 +12,12 @@ var sqlProps = code.Props{
 }
 
 templ Docs() {
-    @card.Card(card.Props{Class: "w-md min-w-md max-w-md flex-col items-stretch justify-stretch"}) {
+    @card.Card(card.Props{Class: "w-md min-w-md max-w-md flex-col items-stretch justify-stretch overflow-hidden -mb-4"}) {
         @card.Header(card.HeaderProps{Class: "pb-5"}) {
             @card.Title() { Documentation }
         }
         @separator.Separator()
-        @card.Content(card.ContentProps{Class: "flex flex-col items-stretch overflow-y-auto h-full pt-2 flex-1"}) {
+        @card.Content(card.ContentProps{Class: "flex flex-col items-stretch overflow-y-auto h-full pt-2 pb-20 flex-1"}) {
             <h2 class="font-bold py-2">Database Overview</h2>
             @accordion.Accordion() {
                 @accordion.Item() {
