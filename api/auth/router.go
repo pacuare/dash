@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"app.pacuare.dev/api/auth/mailer"
 	"app.pacuare.dev/shared"
+	"app.pacuare.dev/shared/mailer"
 	"app.pacuare.dev/templates"
 )
 
