@@ -5,13 +5,15 @@ vars:
     sh: command -v tailwindcss >/dev/null 2>&1 && echo "tailwindcss" || echo "npx tailwindcss@latest"
   GOOSE:
     sh: test -f goose && echo "./goose" || echo "go tool goose"
-  DATABASE_URL: postgresql://localhost:5432/pacuare
+
+dotenv:
+  - .env
 
 tasks:
   templ:
     desc: Run templ with integrated server and hot reload
     cmds:
-      - templ generate --watch --proxy="http://localhost:8090" --cmd="go run ./main.go" --open-browser=false
+      - go tool templ generate --watch --proxy="http://localhost:8090" --cmd="go run ./main.go" --open-browser=false
 
   tailwind:
     desc: Watch Tailwind CSS changes
@@ -22,6 +24,7 @@ tasks:
     desc: Run server with Air
     cmds:
       - |
+        export $(cat .env) && \
         go tool air \
             --build.cmd "go build -o tmp/bin/main ./main.go" \
             --build.bin "tmp/bin/main" \
@@ -39,4 +42,9 @@ tasks:
   migrate:
     desc: Run database migrations
     cmds:
-      - "{{.GOOSE}} postgres {{.DATABASE_URL}} up -dir migrations"
+      - "{{.GOOSE}} postgres $DATABASE_URL up -dir migrations"
+
+  setup:
+    desc: Set up environment for development
+    cmds:
+      - sh env.gen.bash
